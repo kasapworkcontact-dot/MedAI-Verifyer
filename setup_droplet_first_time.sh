@@ -2,7 +2,7 @@
 
 echo "1. Updating Server and Installing Dependencies..."
 apt update && apt upgrade -y
-apt install python3-pip python3-venv git curl nginx -y
+apt install python3-pip python3-venv git curl nginx libgl1 -y
 
 # ติดตั้ง Node.js 20
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
