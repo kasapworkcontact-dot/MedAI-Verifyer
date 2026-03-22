@@ -128,7 +128,8 @@ export default function UploadPage() {
 
     try {
       const detectFd = new FormData();
-      const sessionId = crypto.randomUUID();
+      const generateId = () => Date.now().toString(36) + Math.random().toString(36).substring(2);
+      const sessionId = generateId();
       detectFd.append("session_id", sessionId);
       if (preOp.file) detectFd.append("pre_op", preOp.file);
       if (postOp.file) detectFd.append("post_op", postOp.file);
