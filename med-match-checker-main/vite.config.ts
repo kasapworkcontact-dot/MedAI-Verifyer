@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: mode === "production" ? "/med-match-checker-main/" : "/",
+  base: mode === "production" ? "/MedAI-Verifyer/" : "/",
   server: {
     host: "::",
     port: 8080,
