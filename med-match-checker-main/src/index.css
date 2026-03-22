@@ -1,0 +1,156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Medical Document Comparison Dashboard Design System */
+
+@layer base {
+  :root {
+    /* Medical theme - Professional blue and white palette */
+    --background: 0 0% 98%;
+    --foreground: 215 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 15%;
+
+    /* Medical primary - Professional blue */
+    --primary: 213 94% 68%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 213 94% 62%;
+
+    /* Medical secondary - Light blue */
+    --secondary: 210 100% 96%;
+    --secondary-foreground: 213 94% 68%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 213 94% 68%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Success and warning for medical results */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 45 93% 47%;
+    --warning-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 213 27% 84%;
+    --input: 213 27% 84%;
+    --ring: 213 94% 68%;
+
+    --radius: 0.75rem;
+
+    /* Upload zones */
+    --upload-border: 213 27% 84%;
+    --upload-background: 210 100% 98%;
+    --upload-hover: 213 100% 94%;
+
+    /* Gradients for medical dashboard */
+    --gradient-primary: linear-gradient(135deg, hsl(213 94% 68%), hsl(213 94% 78%));
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(210 100% 98%));
+    
+    /* Shadows */
+    --shadow-soft: 0 2px 8px -2px hsl(213 94% 68% / 0.1);
+    --shadow-medium: 0 4px 16px -4px hsl(213 94% 68% / 0.15);
+    --shadow-strong: 0 8px 32px -8px hsl(213 94% 68% / 0.25);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: all 0.15s ease-out;
+  }
+
+  .dark {
+    --background: 215 28% 7%;
+    --foreground: 210 40% 98%;
+
+    --card: 215 28% 9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 215 28% 9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 213 94% 68%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 213 94% 62%;
+
+    --secondary: 215 28% 12%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 215 28% 12%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 213 94% 68%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 45 93% 47%;
+    --warning-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 215 28% 18%;
+    --input: 215 28% 18%;
+    --ring: 213 94% 68%;
+
+    --upload-border: 215 28% 18%;
+    --upload-background: 215 28% 9%;
+    --upload-hover: 215 28% 12%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(213 94% 68%), hsl(213 94% 78%));
+    --gradient-subtle: linear-gradient(180deg, hsl(215 28% 9%), hsl(215 28% 7%));
+    
+    --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.3);
+    --shadow-medium: 0 4px 16px -4px hsl(0 0% 0% / 0.4);
+    --shadow-strong: 0 8px 32px -8px hsl(0 0% 0% / 0.5);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+@layer components {
+  .upload-zone {
+    @apply relative rounded-lg border-2 border-dashed border-upload-border bg-upload-background transition-colors duration-200;
+  }
+  
+  .upload-zone:hover {
+    @apply border-primary bg-upload-hover;
+  }
+  
+  .upload-zone.drag-over {
+    @apply border-primary bg-upload-hover;
+  }
+
+  .medical-gradient {
+    background: var(--gradient-primary);
+  }
+
+  .medical-shadow {
+    box-shadow: var(--shadow-medium);
+  }
+
+  .medical-card {
+    @apply bg-card border border-border rounded-lg shadow-sm transition-shadow duration-200;
+  }
+
+  .medical-card:hover {
+    box-shadow: var(--shadow-medium);
+  }
+}
