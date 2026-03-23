@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface FileSlot {
-  file: File | null;
-  preview: string | null;
+  files: File[];
+  previews: string[];
 }
 
-const EMPTY_SLOT: FileSlot = { file: null, preview: null };
+const EMPTY_SLOT: FileSlot = { files: [], previews: [] };
 
 function DropZone({
   label,
@@ -22,6 +22,7 @@ function DropZone({
   onChange,
   accept = "image/*",
   accentColor = "text-primary",
+  multiple = false,
 }: {
   label: string;
   sublabel: string;
@@ -30,13 +31,21 @@ function DropZone({
   onChange: (slot: FileSlot) => void;
   accept?: string;
   accentColor?: string;
+  multiple?: boolean;
 }) {
   const [drag, setDrag] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const processFile = (file: File) => {
-    const preview = file.type.startsWith("image/") ? URL.createObjectURL(file) : null;
-    onChange({ file, preview });
+  const processFiles = (newFiles: File[]) => {
+    const combined = [...value.files, ...newFiles];
+    const previews = combined.map(f => f.type.startsWith("image/") ? URL.createObjectURL(f) : "");
+    onChange({ files: combined, previews });
+  };
+
+  const removeFile = (idx: number) => {
+    const files = value.files.filter((_, i) => i !== idx);
+    const previews = value.previews.filter((_, i) => i !== idx);
+    onChange({ files, previews });
   };
 
   return (
@@ -51,62 +60,62 @@ function DropZone({
         </div>
       </div>
 
-      {value.file ? (
-        <div className="relative rounded-xl border border-border overflow-hidden bg-muted/30 group">
-          {value.preview ? (
-            <img src={value.preview} alt="preview" className="w-full h-40 object-cover" />
-          ) : (
-            <div className="flex items-center gap-3 p-4">
-              <FileText className="h-8 w-8 text-primary" />
-              <div>
-                <p className="text-sm font-medium truncate max-w-[200px]">{value.file.name}</p>
-                <p className="text-xs text-muted-foreground">{(value.file.size / 1024).toFixed(1)} KB</p>
+      {/* Uploaded previews */}
+      {value.files.length > 0 && (
+        <div className="grid grid-cols-2 gap-2">
+          {value.files.map((file, idx) => (
+            <div key={idx} className="relative rounded-xl border border-border overflow-hidden bg-muted/30 group">
+              {value.previews[idx] ? (
+                <img src={value.previews[idx]} alt={`preview-${idx}`} className="w-full h-28 object-cover" />
+              ) : (
+                <div className="flex items-center gap-2 p-3">
+                  <FileText className="h-6 w-6 text-primary" />
+                  <p className="text-xs font-medium truncate">{file.name}</p>
+                </div>
+              )}
+              <button
+                onClick={() => removeFile(idx)}
+                className="absolute top-1 right-1 p-0.5 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <X className="h-3 w-3" />
+              </button>
+              <div className="absolute bottom-1 right-1 bg-green-500 text-white rounded-full p-0.5">
+                <CheckCircle className="h-3 w-3" />
               </div>
             </div>
-          )}
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => onChange(EMPTY_SLOT)}
-              className="gap-1"
-            >
-              <X className="h-3 w-3" /> ลบ
-            </Button>
-          </div>
-          <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-0.5">
-            <CheckCircle className="h-3 w-3" />
-          </div>
-        </div>
-      ) : (
-        <div
-          onClick={() => inputRef.current?.click()}
-          onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
-          onDragLeave={() => setDrag(false)}
-          onDrop={(e) => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files[0]; if (f) processFile(f); }}
-          className={cn(
-            "upload-zone h-40 flex flex-col items-center justify-center gap-3 cursor-pointer",
-            drag && "drag-over"
-          )}
-        >
-          <input
-            ref={inputRef}
-            type="file"
-            accept={accept}
-            className="hidden"
-            onChange={(e) => { const f = e.target.files?.[0]; if (f) processFile(f); }}
-          />
-          <div className="p-3 rounded-full bg-primary/10">
-            <Upload className="h-6 w-6 text-primary" />
-          </div>
-          <div className="text-center">
-            <p className="text-sm font-medium text-foreground">
-              วาง หรือ <span className="text-primary underline">เลือกไฟล์</span>
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">PNG, JPG สูงสุด 10MB</p>
-          </div>
+          ))}
         </div>
       )}
+
+      {/* Drop zone (always visible to allow adding more) */}
+      <div
+        onClick={() => inputRef.current?.click()}
+        onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
+        onDragLeave={() => setDrag(false)}
+        onDrop={(e) => { e.preventDefault(); setDrag(false); processFiles(Array.from(e.dataTransfer.files)); }}
+        className={cn(
+          "upload-zone h-28 flex flex-col items-center justify-center gap-2 cursor-pointer",
+          drag && "drag-over"
+        )}
+      >
+        <input
+          ref={inputRef}
+          type="file"
+          accept={accept}
+          multiple={multiple}
+          className="hidden"
+          onChange={(e) => { if (e.target.files) processFiles(Array.from(e.target.files)); e.target.value = ""; }}
+        />
+        <div className="p-2 rounded-full bg-primary/10">
+          <Upload className="h-5 w-5 text-primary" />
+        </div>
+        <div className="text-center">
+          <p className="text-xs font-medium text-foreground">
+            {value.files.length > 0 ? "เพิ่มรูปอีก" : "วาง หรือ"} <span className="text-primary underline">เลือกไฟล์</span>
+          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">{multiple ? "เลือกได้หลายรูป" : "PNG, JPG"}</p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -120,7 +129,7 @@ export default function UploadPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const canRun = preOp.file || postOp.file;
+  const canRun = preOp.files.length > 0 || postOp.files.length > 0;
 
   const handleRun = async () => {
     if (!canRun) return;
@@ -131,17 +140,17 @@ export default function UploadPage() {
       const generateId = () => Date.now().toString(36) + Math.random().toString(36).substring(2);
       const sessionId = generateId();
       detectFd.append("session_id", sessionId);
-      if (preOp.file) detectFd.append("pre_op", preOp.file);
-      if (postOp.file) detectFd.append("post_op", postOp.file);
+      preOp.files.forEach(f => detectFd.append("pre_op", f));
+      postOp.files.forEach(f => detectFd.append("post_op", f));
 
       setLoadingStep("กำลังตรวจจับอุปกรณ์ด้วย YOLO...");
       const detectRes = await runDetect(detectFd);
 
-      if (formImg.file) {
-        setLoadingStep("กำลังอ่านแบบฟอร์มด้วย Gemini OCR...");
+      if (formImg.files.length > 0) {
+        setLoadingStep("กำลังอ่านแบบฟอร์ม...");
         const ocrFd = new FormData();
         ocrFd.append("session_id", sessionId);
-        ocrFd.append("form_image", formImg.file);
+        ocrFd.append("form_image", formImg.files[0]);
         await runOCR(ocrFd);
       }
 
@@ -190,10 +199,11 @@ export default function UploadPage() {
             </div>
             <DropZone
               label="ภาพอุปกรณ์ก่อนผ่าตัด"
-              sublabel="ภาพถ่ายชุดอุปกรณ์ก่อนเริ่มการผ่าตัด"
+              sublabel="เพิ่มได้หลายรูป"
               icon={Image}
               value={preOp}
               onChange={setPreOp}
+              multiple
             />
           </div>
 
@@ -206,11 +216,12 @@ export default function UploadPage() {
             </div>
             <DropZone
               label="ภาพอุปกรณ์หลังผ่าตัด"
-              sublabel="ภาพถ่ายชุดอุปกรณ์หลังเสร็จสิ้นการผ่าตัด"
+              sublabel="เพิ่มได้หลายรูป"
               icon={Image}
               value={postOp}
               onChange={setPostOp}
               accentColor="text-orange-500"
+              multiple
             />
           </div>
 
@@ -223,7 +234,7 @@ export default function UploadPage() {
             </div>
             <DropZone
               label="แบบฟอร์มบันทึกการผ่าตัด"
-              sublabel="ภาพถ่ายใบตรวจนับอุปกรณ์ (อ่านด้วย Gemini OCR)"
+              sublabel="ภาพถ่ายใบตรวจนับอุปกรณ์"
               icon={FileText}
               value={formImg}
               onChange={setFormImg}
@@ -233,7 +244,7 @@ export default function UploadPage() {
         </div>
 
         {/* Info notice */}
-        {!formImg.file && (
+        {!formImg.files.length && (
           <div className="medical-card p-4 mb-6 bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
             <div className="flex items-start gap-3">
               <AlertCircle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />

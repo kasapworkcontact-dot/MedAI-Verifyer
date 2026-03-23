@@ -33,6 +33,7 @@ interface Crop {
 export default function AnnotationPage() {
   const [crops, setCrops] = useState<Crop[]>([]);
   const [labels, setLabels] = useState<Record<number, string>>({});
+  const [customLabels, setCustomLabels] = useState<Record<number, string>>({});
   const [saving, setSaving] = useState<Record<number, boolean>>({});
   const [saved, setSaved] = useState<Record<number, boolean>>({});
   const [loading, setLoading] = useState(true);
@@ -56,14 +57,20 @@ export default function AnnotationPage() {
       .finally(() => setLoading(false));
   }, [sessionId]);
 
+  const getEffectiveLabel = (cropId: number) => {
+    const sel = labels[cropId];
+    if (sel === "OTHER") return customLabels[cropId]?.trim() || "";
+    return sel || "";
+  };
+
   const handleSave = async (cropId: number) => {
-    const label = labels[cropId];
+    const label = getEffectiveLabel(cropId);
     if (!label) {
-      toast({ title: "กรุณาเลือกประเภทอุปกรณ์", variant: "destructive" }); return;
+      toast({ title: "กรุณาเลือกหรือพิมพ์ประเภทอุปกรณ์", variant: "destructive" }); return;
     }
     setSaving({ ...saving, [cropId]: true });
     try {
-      await saveLabel(cropId, label);
+      await saveLabel(cropId, label);  // label is already resolved to effective value
       setSaved({ ...saved, [cropId]: true });
       toast({ title: "บันทึกแล้ว", description: `ระบุว่า: ${label}` });
     } catch (err: any) {
@@ -202,15 +209,26 @@ export default function AnnotationPage() {
                     className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   >
                     <option value="">-- เลือกประเภท --</option>
-                    {EQUIPMENT_OPTIONS.map((opt) => (
+                    {EQUIPMENT_OPTIONS.filter(o => o !== "Other / อื่นๆ").map((opt) => (
                       <option key={opt} value={opt}>{opt}</option>
                     ))}
+                    <option value="OTHER">Other / อื่นๆ...</option>
                   </select>
+                  {labels[crop.id] === "OTHER" && (
+                    <input
+                      type="text"
+                      placeholder="พิมพ์ชื่ออุปกรณ์..."
+                      value={customLabels[crop.id] || ""}
+                      onChange={(e) => setCustomLabels({ ...customLabels, [crop.id]: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-primary bg-primary/5 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      autoFocus
+                    />
+                  )}
                 </div>
 
                 <Button
                   onClick={() => handleSave(crop.id)}
-                  disabled={saving[crop.id] || !labels[crop.id]}
+                  disabled={saving[crop.id] || !getEffectiveLabel(crop.id)}
                   size="sm"
                   variant={saved[crop.id] ? "outline" : "medical"}
                   className="w-full gap-1.5"

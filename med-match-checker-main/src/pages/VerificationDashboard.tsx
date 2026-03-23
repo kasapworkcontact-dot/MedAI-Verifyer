@@ -20,7 +20,7 @@ interface ComparisonRow {
 
 export default function VerificationDashboard() {
   const [rows, setRows] = useState<ComparisonRow[]>([]);
-  const [edited, setEdited] = useState<Record<string, number>>({});
+  const [edited, setEdited] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -38,13 +38,18 @@ export default function VerificationDashboard() {
   }, [sessionId]);
 
   const getCorrected = (row: ComparisonRow): number => {
-    if (edited[row.equipment_name] !== undefined) return edited[row.equipment_name];
+    if (edited[row.equipment_name] !== undefined) {
+      const parsed = parseInt(edited[row.equipment_name], 10);
+      return isNaN(parsed) ? (row.corrected_count ?? row.yolo_count) : parsed;
+    }
     return row.corrected_count ?? row.yolo_count;
   };
 
   const handleEdit = (name: string, val: string) => {
-    const num = parseInt(val, 10);
-    if (!isNaN(num) && num >= 0) setEdited({ ...edited, [name]: num });
+    // Allow empty string and valid non-negative numbers while typing
+    if (val === "" || (!isNaN(parseInt(val, 10)) && parseInt(val, 10) >= 0)) {
+      setEdited({ ...edited, [name]: val });
+    }
   };
 
   const handleSave = async () => {
@@ -183,7 +188,7 @@ export default function VerificationDashboard() {
                           <input
                             type="number"
                             min={0}
-                            value={corrected}
+                            value={edited[row.equipment_name] !== undefined ? edited[row.equipment_name] : corrected}
                             onChange={(e) => handleEdit(row.equipment_name, e.target.value)}
                             className={cn(
                               "w-16 text-center px-2 py-1 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-all",
