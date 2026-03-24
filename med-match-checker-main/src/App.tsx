@@ -8,6 +8,7 @@ import AuthPage from "./pages/AuthPage";
 import UploadPage from "./pages/UploadPage";
 import AnnotationPage from "./pages/AnnotationPage";
 import VerificationDashboard from "./pages/VerificationDashboard";
+import HistoryPage from "./pages/HistoryPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/upload" element={<ProtectedRoute><UploadPage /></ProtectedRoute>} />
             <Route path="/annotation" element={<ProtectedRoute><AnnotationPage /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><VerificationDashboard /></ProtectedRoute>} />
+            <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

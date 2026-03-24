@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Activity, Upload, Tag, BarChart3, LogOut, LogIn, User } from "lucide-react";
+import { Activity, Upload, Tag, BarChart3, LogOut, LogIn, User, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { path: "/upload", label: "อัปโหลด", icon: Upload },
   { path: "/annotation", label: "Annotation", icon: Tag },
   { path: "/dashboard", label: "Dashboard", icon: BarChart3 },
+  { path: "/history", label: "ประวัติ", icon: History },
 ];
 
 const Header = () => {
